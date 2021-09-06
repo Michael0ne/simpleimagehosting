@@ -1,0 +1,96 @@
+table, td, tr {
+	margin: 0;
+	padding: 0;
+}
+
+.imgtb {
+	background-color: #202020;
+	padding-left: 3px;
+	margin: 0;
+}
+
+.photoinfo {
+	border: 1px solid black;
+	width: 250px;
+	height: 250px;
+}
+
+.photoinfo:hover {
+	background-color: black;
+	border-color: white;
+}
+
+.photoinfo img {
+	width: 250px;
+	height: 250px;
+}
+
+.photoinfodesc {
+	cursor: default;
+	position: relative;
+	top: -85px;
+	background-color: rgba(0, 0, 0, 0.8);
+	color: white;
+	display: none;
+}
+
+.photoinfopw {
+	font-style: italic;
+}
+
+.photoimp-check {
+	border: 1px solid black;
+	color: white;
+	margin: 0;
+	padding: 0;
+	float: left;
+	height: 200px;
+	width: 100%;
+	overflow-y: scroll;
+	margin-bottom: 10px;
+}
+
+.photoimp-err {
+	clear: both;
+	margin-top: 10px;
+	margin-left: 10px;
+	border: 1px solid red;
+	width: 50%;
+}
+
+.stcheck {
+	background-color: #202020;
+	color: white;
+	padding-top: 2px;
+	min-height: 100px;
+}
+
+.difcheck {
+	background-color: #202020;
+	color: white;
+	padding-top: 2px;
+	min-height: 100px;
+	height: 300px;
+	overflow-y: scroll;
+}
+
+#nav a {
+	color: #fff;
+	background-color: #428bca;
+	border-color: #357ebd;
+	text-decoration: none;
+	padding: 2px 6px;
+	border-radius: 4px;
+}
+
+#nav a:hover {
+	color:#fff;
+	background-color:#3071a9;
+	border-color:#285e8e;
+}
+
+.photoinfolikes {
+	padding: 2px 5px;
+	background: black;
+	border-radius: 30%;
+}

@@ -1,0 +1,144 @@
+BODY {
+	background-color: #D0D0D0;
+	margin: 0;
+	padding: 0;
+}
+
+#form-upload {
+	float: left;
+	margin-left: 2%;
+	border: 1px dashed black;
+}
+
+.table-desc {
+	text-align: right;
+}
+
+.table-field {
+	text-align: left;
+}
+
+.err {
+	float: left;
+	background-color: #D19696;
+	border: 1px dashed #D37878;
+	border-radius: 5px;
+	padding: 10px 10px 0 10px;
+}
+
+.err b {
+	border-bottom: 1px solid black;
+	padding: 0 !important;
+}
+
+.photogallery {
+	float: left;
+	background-color: #DFDFDF;
+	text-align: center;
+	margin-left: 15%;
+	width: 70%;
+	margin-bottom: 10px;
+}
+
+.pageselector {
+	
+}
+
+.galimg {
+	background-color: #E9E9E9;
+	float: left;
+	margin: 5px;
+	border-radius: 5px;
+	padding: 5px;
+	cursor: pointer;
+}
+
+.galimg.imgdesc {
+	border-top: 1px solid black;
+	border-radius: 0px;
+	font-size: 10px;
+}
+
+.foot {
+	clear: both;
+	margin-left: 40%;
+	width: 20%;
+	text-align: center;
+	border-top: 1px solid grey;
+}
+
+.foot a {
+	text-decoration: none;
+	font-family: sans-serif;
+}
+
+table {
+	text-align: center;
+}
+
+.vphoto {
+	float: left;
+	margin-left: 100px;
+	margin-bottom: 100px;
+	border: 1px solid black;
+	border-radius: 5px;
+	padding: 0;
+	background-color: white;
+	text-align: center;
+}
+
+.vphoto .desc {
+	background-color: #8C8C8C;
+	padding-bottom: 2px;
+}
+
+.vphoto .desc a {
+	font-size: 15px;
+	color: black;
+}
+
+.vphoto .linkb {
+	background-color: black;
+	margin: 0;
+}
+
+.vphoto a {
+	text-decoration: none;
+	color: white;
+	font-size: 20px;
+}
+
+#viewer-img-passw::-webkit-input-placeholder {
+	font-style: italic;
+}
+
+#viewer-img-passw:-moz-placeholder { /* Firefox 18- */
+	font-style: italic;
+}
+
+#viewer-img-passw::-moz-placeholder {  /* Firefox 19+ */
+	font-style: italic; 
+}
+
+#viewer-img-passw:-ms-input-placeholder {  
+	font-style: italic;  
+}
+
+#viewer-img-form-report a {
+	color: black;
+	background: white;
+	font-size: 14px;
+	border-radius: 4px;
+	padding: 2px;
+	font-family: sans-serif;
+}
+
+#viewer-img-form-report a:hover {
+	background-color: black;
+	color: white;
+}
+
+#viewer-img-form-report a:active {
+	background-color: #303030;
+	color: grey;
+}

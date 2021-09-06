@@ -1,0 +1,87 @@
+<?php
+
+// Перед выводом контента, получим из БД всё, что нужно.
+
+// Подключаемся к БД MySQL исходя из настроек.
+$mysqli = new mysqli(DB_SERVER, DB_USER, DB_PASSWORD, DB_DEFAULTDB);
+
+if ($mysqli->connect_error)
+	print("* Ошибка при подключении к базе данных!<br />(#".$mysqli->connect_errno.": ".$mysqli->connect_error.")");
+	
+$query = sprintf("SELECT `email` FROM ".DB_DEFAULTTABL." WHERE 1");
+$result = $mysqli->query($query);
+
+if (!$result)
+	print("* Ошибка при выполнении запроса!");
+
+while ($row = $result->fetch_row())
+	$uploadersArray[] = $row[0];
+$uploadersArray = array_count_values($uploadersArray);
+
+$query = sprintf("SELECT * FROM ".DB_DEFAULTTABL." WHERE `email`='".$params["showu"]."'");
+$result = $mysqli->query($query);
+
+if (!$result)
+	print("* Ошибка при выполнении запроса!");
+	
+while ($resultRow = $result->fetch_row())
+	$userPhotosArray[] = $resultRow;
+$userPhotosUploaded = count($userPhotosArray);
+
+// Закрываем соединение с бд.
+$mysqli->close();
+
+?>
+
+<select id="showu" onchange="selectUser(this)">
+	<option>Выберите другого пользователя</option>
+<?php
+
+// Циклично выводим список пользователей (без повторений).
+foreach ($uploadersArray as $uploaderName => $uploadsCount)
+	print("<option>$uploaderName</option>");
+
+?>
+
+</select>
+<script type="text/javascript">
+// JQuery уже подключен.
+function selectUser(sel) {
+	location.replace("<?= $_SERVER["SCRIPT_URI"] ?>?act=admin&photos&section=uploadsby&showu=" + $("#showu").val());
+}
+</script>
+<p>Фотографии загруженные пользователем <b><?= $params["showu"] ?></b> (<?= $userPhotosUploaded ?> шт.) отображены ниже.</p>
+<br />
+<span id="btnPhotoSel" style="padding-right: 20px"><button onclick="togglePhotoSel()">Выбрать фотографии</button></span>
+<div class="imgtb">
+<table>
+
+<?php
+
+define("PHOTOS_IN_ROW", 5);
+
+foreach ($userPhotosArray as $index => $photoInfo) {
+	if ($index % PHOTOS_IN_ROW == 0)
+		print("<tr>");
+
+	print("<td>");
+	
+	// Сама фотография.
+	print("<div id=\"photo_{$photoInfo[0]}\" data-selected=\"false\" data-passw=\"{$photoInfo[8]}\" class=\"photoinfo\">");
+	print("<img src=\"{$photoInfo[7]}\" />");
+	print("<div class=\"photoinfodesc\">ID:&nbsp;<a style=\"color: white\" href=\"" . $_SERVER["SCRIPT_URI"] . "?act=view&photoid={$photoInfo[0]}&from=admin\" target=\"_blank\"><i>{$photoInfo[0]}</i></a><br />Дата:&nbsp;{$photoInfo[1]}<br />");
+	if ((int)$photoInfo[9] > 0)
+		print("Понравилось:&nbsp;<span class=\"photoinfolikes\">{$photoInfo[9]}</span>");
+	print("<br />Пароль:&nbsp;<span class=\"photoinfopw\" data-pass=\"{$photoInfo[8]}\">скрыто</span><br /></div>");
+	print("</div>");
+	
+	print("</td>");
+
+	if (($index % 3 == 0 && $index > $index + (PHOTOS_IN_ROW - 1)) || ($userPhotosUploaded < 3 && $index == (PHOTOS_IN_ROW - 1)))
+		print("</tr>");
+}
+
+?>
+
+</table>
+</div>

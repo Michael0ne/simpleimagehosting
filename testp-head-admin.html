@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta content="text/html" charset="utf-8" />
+		<title>DOCUMENT_TITLE</title>
+		<script src="//code.jquery.com/jquery-latest.js"></script>
+		<script src="jquery.mask.min.js"></script>
+		<script src="script.main.js"></script>
+<?
+if (isset($_GET['act']))
+	if ($_GET['act'] == "admin")
+		if (isset($_COOKIE["adminHash"]))
+			print("\t\t<script src=\"script.admin.js\"></script>\n");
+?>
+		<link rel="stylesheet" type="text/css" href="style.main.css" />
+<?
+if (isset($_GET['act']))
+	if ($_GET['act'] == "admin")
+		if (isset($_COOKIE["adminHash"]))
+			print("\t\t<link rel=\"stylesheet\" type=\"text/css\" href=\"style.admin.css\" />\n");
+?>
+	</head>
+	<body>

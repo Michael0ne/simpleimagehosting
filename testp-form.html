@@ -1,0 +1,45 @@
+
+<h2>Добавление фотографии.</h2>
+<p style="font-size: 150%">Чтобы добавить фотографию, вам необходимо заполнить форму ниже.
+<br />
+Посмотреть загруженные другими пользователями фотографии, вы можете <a href="index.php?act=view&from=add">здесь</a>.</p>
+<br />
+<form id="form-upload" enctype="multipart/form-data" action="photoadd.php" onsubmit="return validateForm();" method="post">
+	<table>
+		<tr id="form-upload-email-field">
+			<td class="table-desc"><b>e-mail</b><sup><i>(электронная почта)</i></sup>:</td>
+			<td class="table-field"><input type="text" id="form-upload-email" name="form-upload-email" placeholder="someone@mail.com" required /></td>
+		</tr>
+		<tr id="form-upload-phone-field">
+			<td class="table-desc"><b>контактный телефон</b>:</td>
+			<td class="table-field"><input type="text" id="form-upload-phone" name="form-upload-phone" placeholder="+_(___)___-__-__" title="Формат: +7(123)456-78-90" required /></td>
+		</tr>
+		<tr>
+<?
+// Генерируем случайный пароль.
+function randPassword() {
+	return rand(111111, 999999);
+}
+?>
+			<td class="table-desc"><b>пароль для удаления</b>:</td>
+			<td class="table-field"><input type="password" id="form-upload-passw" name="form-upload-passw" placeholder="1234" title="Введите пароль для удаления картинки" maxlength="6" required /><button onclick="document.getElementById('form-upload-passw').value = Math.floor((Math.random() * 999999) + 1); return false;">?</button></td>
+		</tr>
+		<tr id="form-upload-image-field">
+			<td class="table-desc"><b>фотография:</b></td>
+			<td class="table-field"><input type="file" id="form-upload-image" name="form-upload-image" accept="image/*" required /></td>
+		</tr>
+		<tr>
+			<td style="text-align: center" colspan="2"><img id="form-upload-image-preview" src="#" width=64 height=64 /></td>
+		</tr>
+		<tr>
+			<td colspan="2"><hr /></td>
+		</tr>
+		<tr>
+			<td style="text-align: center" colspan="2"><input type="submit" value="Добавить" /></td>
+		</tr>
+	</table>
+</form>
+<script>
+	// Для создания маски поля ввода телефона
+	$("#form-upload-phone").mask("+9(999)999-99-99");
+</script>

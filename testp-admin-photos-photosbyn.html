@@ -1,0 +1,45 @@
+<p>Выберите пользователя из списка ниже.</p>
+<br />
+<select id="showu" onchange="selectUser(this)">
+<option>имя пользователя</option>
+<?php
+
+// Подключаемся к БД MySQL исходя из настроек.
+$mysqli = new mysqli(DB_SERVER, DB_USER, DB_PASSWORD, DB_DEFAULTDB);
+	
+if ($mysqli->connect_error)
+	print("* Ошибка при подключении к базе данных!<br />(#".$mysqli->connect_errno.": ".$mysqli->connect_error.")");
+
+$query = sprintf("SELECT COUNT(*) FROM ".DB_DEFAULTTABL);
+$result = $mysqli->query($query);
+
+if (!$result)
+	print("* Ошибка при выполнении запроса!");
+
+$result = $result->fetch_assoc();
+$totalPhotosUploaded = $result["COUNT(*)"];
+
+$query = sprintf("SELECT `email` FROM ".DB_DEFAULTTABL." WHERE 1");
+$result = $mysqli->query($query);
+
+if (!$result)
+	print("* Ошибка при выполнении запроса!");
+
+while ($row = $result->fetch_row())
+	$uploadersArray[] = $row[0];
+$uploadersArray = array_count_values($uploadersArray);
+
+// Закрываем соединение с бд.
+$mysqli->close();
+
+// Циклично выводим список пользователей (без повторений).
+foreach ($uploadersArray as $uploaderName => $uploadsCount)
+	print("<option>$uploaderName</option>");
+?>
+</select>
+<script type="text/javascript">
+// JQuery уже подключен.
+function selectUser(sel) {
+	location.replace("<?= $_SERVER["SCRIPT_URI"] ?>?act=admin&photos&section=uploadsby&showu=" + $("#showu").val());
+}
+</script>

@@ -1,0 +1,30 @@
+
+<h2>Просмотр загруженной фотографии.</h2>
+<br />
+<div class="vphoto">
+	<div class="linkb">
+		<a href="index.php?act=view&page=<?= $_GET['page'] ?>&from=viewphoto"><< НАЗАД</a>
+	</div>
+	<div id="photospace" style="width: auto; display: inline-block; padding: 0">
+		<img style="width: 70%; height: auto; cursor: pointer" id="photov" src="<?= $data[6] ?>" title="Нажмите для увеличения" onclick="window.open('<?= $data[6] ?>', '_blank', 'menubar=no, resizable=no, scrollbars=no, status=no, titlebar=no, toolbar=no')" />
+	</div>
+	<div class="desc">
+		Загружено: <?= $data[1] ?>.<br />
+		Загрузил: <a href="mailto: <?= $data[2] ?>"><?= $data[2] ?></a>.<br />
+		Телефон: <a href="callto: <?= $data[3] ?>"><?= $data[3] ?></a>.
+	</div>
+	<div id="viewer-img-form-del" style="background-color: #494949">
+		Ввести пароль и удалить картинку:&nbsp;
+		<input type="password" id="viewer-img-passw" placeholder="пароль" onkeydown="if (event.which == 13) delPicture();" />
+		<button onclick="delPicture()">Удалить</button>
+	</div>
+	<div id="viewer-img-form-report" style="background-color: #303030">
+		<!-- <button onclick="reportPicture('show')">Пожаловаться</button> -->
+		<a href="#" onclick="reportPicture('show')">Пожаловаться</a>
+		<!-- <button id="btnlikes" onclick="likePicture()">Мне нравится</button> -->
+		<a id="btnlikes" href="#" onclick="likePicture()">Мне нравится</a>
+	</div>
+	<div class="linkb">
+		<a href="index.php?act=view&page=<?= $_GET['page'] ?>&order=<?= $_GET['order'] ?>&from=viewphoto"><< НАЗАД</a>
+	</div>
+</div>

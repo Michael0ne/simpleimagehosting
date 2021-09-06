@@ -1,0 +1,161 @@
+<p>Проверка наличия файлов в папке загрузок и импорт из папки загрузок.</p>
+<br />
+<div class="stcheck">
+<div class="photoimp-check">
+<span style="float: right;cursor: pointer" onclick="$('.photoimp-check').slideToggle('slow', function() { $(this).remove(); });">ЗАКРЫТЬ</span>
+<?php
+
+// Сканирование папки uploads на наличие файлов, которых нету в БД.
+
+// Подключаемся к БД MySQL исходя из настроек.
+$mysqli = new mysqli(DB_SERVER, DB_USER, DB_PASSWORD, DB_DEFAULTDB);
+	
+if ($mysqli->connect_error)
+	print("* Ошибка при подключении к базе данных!<br />(#".$mysqli->connect_errno.": ".$mysqli->connect_error.")");
+
+$query = sprintf("SELECT `imagelocal`, `imagelocal_thumb`, `imageglobal`, `uid` FROM ".DB_DEFAULTTABL);
+$result = $mysqli->query($query);
+
+if (!$result)
+	print("* Ошибка при выполнении запроса!");
+
+print("<b>Проверка на наличие файлов запущена.</b><br />");
+$errors = Array();
+while ($row = $result->fetch_row()) {
+	if (file_exists($row[0]) === true) {
+		print("<b>Проверка файла {$row[0]}... <font color=green>существует!</font></b><br />");
+		if (file_exists($row[1]) === true) {
+			print("<b>Проверка файла {$row[1]}... <font color=green>существует!</font></b><br />");
+		}else{
+			print("<b>Проверка файла {$row[1]}... <font color=red>не найден!</font></b><br />");
+			$errors[] = array($row[1], $row[2]);
+		}
+	}else{
+		print("<b>Проверка файла {$row[0]}... <font color=red>не найден!</font></b><br />");
+		$errors[] = array($row[0], $row[2], $row[3]);
+		if (file_exists($row[1]) === true) {
+			print("<b>Проверка файла {$row[1]}... <font color=green>существует!</font></b><br />");
+		}else{
+			print("<b>Проверка файла {$row[1]}... <font color=red>не найден!</font></b><br />");
+			$errors[] = array($row[1], $row[2], $row[3]);
+		}
+	}
+}
+
+if (!empty($errors)) {
+	print("<b>Проверка окончена. Найдено ".count($errors)." недостающих файлов в папке загрузок.</b>");
+}else{
+	print("<b>Проверка окончена. Недостающих файлов не найдено.</b>");
+}
+
+print("</div>");
+
+if (!empty($errors)) {
+	if (count($errors) < 3)
+		print("<div id=\"errors-list\" style=\"clear: left;height: 200px; overflow-y: scroll\">");
+	else
+		print("<div id=\"errors-list\" style=\"clear: left;height: 400px; overflow-y: scroll\">");
+	print("<input type=\"hidden\" id=\"errors-total\" value=\"".count($errors)."\" />");
+
+	// Есть недостающие файлы. Узнаем о каких файлах идёт речь.
+	$id = 0;
+	foreach($errors as $fileName) {
+		print("<div data-errid=\"{$id}\" class=\"photoimp-err\">");
+		if (substr_count($fileName[0], "/uploads/thumbs/") == 1) {
+			print("<input type=\"hidden\" id=\"filename\" value=\"".str_replace("/thumbs/", "/", $fileName[0])."\" /><input type=\"hidden\" id=\"filename_thumb\" value=\"{$fileName[0]}\" />");
+			print("Ошибка. Не найдено превью для фотографии. (<a href=\"{$fileName[1]}\">".substr($fileName[0], strrpos($fileName[0], '/') + 1)."</a>)<br />");
+			print("Предлагаемые действия:<br /><button onclick=\"genThumb({$id})\">СГЕНЕРИРОВАТЬ ПРЕВЬЮ</button>&nbsp;|&nbsp;<button onclick=\"ignoreThis(${id})\">ИГНОРИРОВАТЬ (НЕ РЕКОМЕНДУЕТСЯ)</button>");
+		}else{
+			print("<input type=\"hidden\" id=\"filename\" value=\"{$fileName[0]}\" /><input type=\"hidden\" id=\"photoid\" value=\"{$fileName[3]}\" />");
+			print("Ошибка. Не найдена фотография. (".substr($fileName, strrpos($fileName[0], '/') + 1).")<br />");
+			print("Предлагаемые действия:<br /><button onclick=\"delPhotos({$id})\">УДАЛИТЬ ФОТОГРАФИЮ</button>&nbsp;|&nbsp;<button onclick=\"ignoreThis({$id})\">ИГНОРИРОВАТЬ (НЕ РЕКОМЕНДУЕТСЯ)</button>");
+		}
+		print("</div>");
+		$id++;
+	}
+
+	print("</div>");
+	print("<br /><button id=\"btn-ignall\" onclick=\"ignoreAll()\">ИГНОРИРОВАТЬ ВСЕ (".count($errors).") ОШИБКИ</button><button id=\"btn-expall\" onclick=\"exposeAll()\" disabled>ПОКАЗАТЬ ВСЕ ОШИБКИ (".count($errors).")</button>");
+}else{
+	print("<div style=\"clear: left\">");
+	print("<p>Ошибок не обнаружено.</p>");
+?>
+</div>
+</div>
+
+<p>Проверка различий между БД и папкой загрузок.</p>
+<br />
+<div style="background-color: #202020;width: 100%"><input type="checkbox" id="chk-selallimg" checked onclick="toggleChecks()" title="Нажмите для выбора/отмены выбора всех элементов сразу." /></div>
+<div class="difcheck">
+<?php
+
+$query = sprintf("SELECT `imagelocal`, `imagelocal_thumb`, `imageglobal`, `uid` FROM ".DB_DEFAULTTABL);
+$result = $mysqli->query($query);
+
+if (!$result)
+	print("* Ошибка при выполнении запроса!");
+	
+$resarr = array();
+while ($row = $result->fetch_row())
+	$resarr[] = array("imagelocal" => $row[0], "imagelocal_thumb" => $row[1], "imageglobal" => $row[2], "uid" => $row[3]);
+
+// Сперва сканируем папку с загрузками и составляем список файлов и превью к ним.
+$dir = opendir(FS_UPLOADDIR);
+while ($catalog = readdir($dir))
+	if (preg_match("/^[0-9]+\_/", $catalog) == true) {
+		$pics[] = $catalog;
+		$pics_thumbs[] = '/thumbs/'.$catalog;
+	}
+closedir($dir);
+
+// Первый признак: разность количества изображений в папке и изображений в БД не равна нулю.
+if (count($pics) > count($resarr))
+	print("<b>Количество картинок в папке загрузок больше количества записей в БД на <i>".(count($pics) - count($resarr))."</i> штук.</b>");
+else
+	print("<b>Количество записей в БД больше количества картинок в папке загрузок на <i>".(count($resarr) - count($pics))."</i></b>");
+	
+print("<br />");
+
+// Выведем различия...
+if (count($pics) > count($resarr)) {
+	// Количество картинок в папке больше. Выведем те, записей для которых ещё нет в бд.
+	$index = 0;
+	foreach($pics as $imagePath) {
+		$query = sprintf("SELECT `uid` FROM ".DB_DEFAULTTABL." WHERE `uid`='%s'",
+						$mysqli->real_escape_string(substr($imagePath, 0, strpos($imagePath, '_'))));
+		$result = $mysqli->query($query);
+		
+		if (!$result)
+			print("* Ошибка при выполнении запроса.");
+		else
+			$result = $result->fetch_assoc();
+		
+		if ($result == NULL) {
+			// Фотографии с таким ID в базе нет. Скажем об этом.
+			print("<input type=\"checkbox\" id=\"{$index}\" value=\"".substr($imagePath, 0, strpos($imagePath, '_'))."\" checked onclick=\"updateSelectedImages()\" /><b><font color=red>Изображение (".$imagePath.") отсутствует в БД.</font></b><br />");
+			$missingPhotos[] = $imagePath;
+		}else{
+			// Фотография с таким ID есть. Пропустим.
+			print("<b><font color=green>Изображение (".$imagePath.") есть в БД.</font></b><br />");
+		}
+		
+		$index++;
+	}
+	
+	if (!empty($missingPhotos)) {
+		print("<b>Найдено <i>".count($missingPhotos)."</i> изображений отсутствующих в БД.</b>");
+		print("</div>");
+		print("<div style=\"background-color: white;width: 100%\"><button id=\"btn-empty\" onclick=\"remEmpty()\">Удалить выбранные изображения (".count($missingPhotos).")</button>&nbsp;<button id=\"btn-addd\" onclick=\"addEmpty()\">Добавить выбранные изображения (".count($missingPhotos).")</button></div>");
+	}else{
+		print("<b>Изображений отсутствующих в БД не найдено.</b>");
+		print("</div>");
+	}
+}else{
+	// Количество записей в БД больше, чем картинок. Странно, такого быть не может.
+}
+
+// Закрываем соединение с бд.
+$mysqli->close();
+
+}
+?>

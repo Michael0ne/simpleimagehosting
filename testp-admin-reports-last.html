@@ -1,0 +1,84 @@
+<p>Жалобы <?= $reportsDates['last24'] ?></p>
+<br />
+<input type="text" name="dateinput" id="dateinput" placeholder="00/00/0000" onkeydown="formSend(event, this)" />
+<div id="content">
+
+<?php
+
+// Подключаемся к БД MySQL исходя из настроек.
+$mysqli = new mysqli(DB_SERVER, DB_USER, DB_PASSWORD, DB_DEFAULTDB);
+	
+if ($mysqli->connect_error)
+	print("* Ошибка при подключении к базе данных!<br />(#".$mysqli->connect_errno.": ".$mysqli->connect_error.")");
+
+$result = $mysqli->query("SELECT * FROM `reports`");
+
+if (!$result)
+	print("* Ошибка при выполнении запроса!");
+
+while ($reportInfo = $result->fetch_assoc()) {
+
+	$photoThumbUrl = $mysqli->query("SELECT `imageglobal_thumb` FROM `uphoto` WHERE `uid` = '" . $reportInfo['photoid'] . "'");
+
+	if (!$photoThumbUrl)
+		print("* Ошибка выполения запроса!");
+
+	$photoThumbUrl = $photoThumbUrl->fetch_array();
+
+	print "<div data-id=\"" . $reportInfo['rid'] . "\" style=\"border-radius: 2px; background-color: white; padding: 2px; height: 66px\">\n";
+	print "<div style=\"float: left\"><img src=\"" . $photoThumbUrl['imageglobal_thumb'] . "\" width=64 height=64 /></div>";
+	print "<div style=\"float: left; margin-left: 15px\">";
+	print "<b>Жалоба:&nbsp;</b><small>" . $reportInfo['reason'] . "</small><br />\n";
+	print "</div>";
+	print "<div style=\"float: right; color: red; cursor: pointer\" onclick=\"reportClear(this, " . $reportInfo['rid'] . ")\">X</div>";
+	print "</div>";
+	print "<div style=\"clear: both\"></div><br />";
+}
+
+// Освобождение результата выборки.
+$result->free();
+
+// Закрываем соединение с БД.
+$mysqli->close();
+?>
+
+</div>
+<script>
+// JQuery is already in.
+
+function formSend(event, sender) {
+	if (event.which != 13)
+		return;
+
+	$.ajax({
+		type: 'POST',
+		url: 'reports.php',
+		data: { act: 'find', day: $("#dateinput").val() }
+	})
+	.done(function(data) {
+		$("#content").html(data);
+	});	
+}
+
+function reportClear(sender, reportId) {
+	if (sender == null || reportId == null)
+		return;
+
+	var nodeDivReport = $("div[data-id='" + reportId + "']");
+
+	$.ajax({
+		type: 'POST',
+		url: 'reports.php',
+		data: { act: 'remove', id: reportId }
+	})
+	.done(function(data) {
+		var result = $.parseJSON(data);
+		if (result.result == 'true')
+			nodeDivReport.fadeOut('fast');
+		else
+			nodeDivReport.animate({"background-color": "red"}, 500);
+	});
+}
+
+$("#dateinput").mask("99/99/9999");
+</script>
